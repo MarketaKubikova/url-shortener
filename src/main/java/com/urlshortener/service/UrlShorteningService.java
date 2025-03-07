@@ -2,6 +2,8 @@ package com.urlshortener.service;
 
 import com.urlshortener.dto.UrlShortenedRequestDto;
 import com.urlshortener.dto.UrlShortenedResponseDto;
+import com.urlshortener.exception.UrlGenerationException;
+import com.urlshortener.exception.UrlNotFoundException;
 import com.urlshortener.model.Url;
 import com.urlshortener.repository.UrlRepository;
 import lombok.AllArgsConstructor;
@@ -21,7 +23,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Slf4j
 public class UrlShorteningService {
-    private static final String BASE_URL = "http://mydomain.com/";
+    private static final String BASE_URL = "https://mydomain.com/";
     private static final int EXPIRATION_MONTHS = 3;
     private static final int SHORT_URL_LENGTH = 7;
 
@@ -49,7 +51,7 @@ public class UrlShorteningService {
         url.setCreatedAt(LocalDateTime.now());
         url.setExpirationDate(LocalDateTime.now().plusMonths(EXPIRATION_MONTHS));
 
-        log.info("Url {} created", url.getShortUrl());
+        log.info("Url {} created", shortUrl);
         urlRepository.save(url);
 
         return new UrlShortenedResponseDto(shortUrl);
@@ -60,10 +62,11 @@ public class UrlShorteningService {
      *
      * @param shortUrl the shortened URL
      * @return the original URL
-     * @throws IllegalArgumentException if the shortened URL is not found
+     * @throws UrlNotFoundException if the shortened URL is not found
      */
     public Url getOriginalUrl(String shortUrl) {
-        return urlRepository.findByShortUrl(shortUrl).orElseThrow(() -> new IllegalArgumentException("Invalid URL"));
+        return urlRepository.findByShortUrl(shortUrl)
+                .orElseThrow(() -> new UrlNotFoundException("URL not found for: " + shortUrl));
     }
 
     /**
@@ -71,7 +74,7 @@ public class UrlShorteningService {
      *
      * @param originalUrl the original URL
      * @return the shortened URL
-     * @throws RuntimeException if there is an error generating the shortened URL
+     * @throws UrlGenerationException if there is an error generating the shortened URL
      */
     private String generateShortUrl(String originalUrl) {
         try {
@@ -83,9 +86,9 @@ public class UrlShorteningService {
                 hexString.append(String.format("%02X", b));
             }
 
-            return BASE_URL + hexString.substring(0, SHORT_URL_LENGTH); // Use first 8 characters for short URL
+            return BASE_URL + hexString.substring(0, SHORT_URL_LENGTH);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error when generating short url", e);
+            throw new UrlGenerationException("Error when generating short url", e);
         }
     }
 }
