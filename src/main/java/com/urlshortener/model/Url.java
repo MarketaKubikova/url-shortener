@@ -23,7 +23,7 @@ public class Url {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     /**
      * The original URL to be shortened.

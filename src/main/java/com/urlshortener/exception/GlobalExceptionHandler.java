@@ -30,6 +30,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles UrlExpiredException and returns a detailed error response.
+     *
+     * @param ex the UrlExpiredException
+     * @return a ResponseEntity containing the error details
+     */
+    @ExceptionHandler(UrlExpiredException.class)
+    @ResponseStatus(HttpStatus.GONE)
+    public ResponseEntity<String> handleUrlExpiredException(UrlExpiredException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.GONE);
+    }
+
+    /**
      * Handles MethodArgumentNotValidException and returns a detailed error response.
      *
      * @param ex the MethodArgumentNotValidException

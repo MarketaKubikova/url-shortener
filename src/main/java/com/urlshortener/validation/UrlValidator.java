@@ -13,7 +13,8 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
      * Regular expression pattern for validating URLs.
      */
     private static final Pattern URL_PATTERN = Pattern.compile(
-            "^(https?://)?(www\\.)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}(/.*)?$");
+            "^(https?://)?(www\\.)?([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}(/.*)?$"
+    );
 
     /**
      * Initializes the validator. No initialization needed in this case.
@@ -28,7 +29,7 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
     /**
      * Validates the given URL.
      *
-     * @param url the URL to validate
+     * @param url     the URL to validate
      * @param context context in which the constraint is evaluated
      * @return true if the URL is valid, false otherwise
      */
