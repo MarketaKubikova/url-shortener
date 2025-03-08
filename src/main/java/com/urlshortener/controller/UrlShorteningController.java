@@ -1,5 +1,6 @@
 package com.urlshortener.controller;
 
+import com.urlshortener.dto.ShortUrlClickStatsResponseDto;
 import com.urlshortener.dto.UrlShortenedRequestDto;
 import com.urlshortener.dto.UrlShortenedResponseDto;
 import com.urlshortener.model.Url;
@@ -30,6 +31,7 @@ public class UrlShorteningController {
      */
     @PostMapping("/api/shorten")
     public ResponseEntity<UrlShortenedResponseDto> shortenUrl(@Valid @RequestBody UrlShortenedRequestDto requestDto) {
+        log.info("Received request to shorten url {}", requestDto.getOriginalUrl());
         UrlShortenedResponseDto responseDto = urlShorteningService.shortenUrl(requestDto);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -52,5 +54,20 @@ public class UrlShorteningController {
         response.setStatus(HttpServletResponse.SC_FOUND); // 302 Redirect
 
         return ResponseEntity.status(HttpStatus.FOUND).build();
+    }
+
+    /**
+     * Endpoint to get the click count of a shortened URL.
+     *
+     * @param shortenUrl the shortened URL
+     * @return the response DTO with short url and click count
+     */
+    @GetMapping("/{shortenUrl}/stats")
+    public ResponseEntity<ShortUrlClickStatsResponseDto> getStats(@PathVariable String shortenUrl) {
+        log.info("Received request to get click stats for {}", shortenUrl);
+        int clickCount = urlShorteningService.getClickCount(shortenUrl);
+        ShortUrlClickStatsResponseDto responseDto = new ShortUrlClickStatsResponseDto(shortenUrl, clickCount);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }
