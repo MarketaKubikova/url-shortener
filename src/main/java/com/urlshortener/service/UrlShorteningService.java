@@ -91,13 +91,18 @@ public class UrlShorteningService {
         String cachedOriginalUrl = redisTemplate.opsForValue().get(shortUrl);
         if (cachedOriginalUrl != null) {
             log.info("Short url {} found in cache.", shortUrl);
-            return new Url(null, cachedOriginalUrl, shortUrl, null, null);
+            incrementClickCount(shortUrl);
+            return new Url(null, cachedOriginalUrl, shortUrl, null, null, 0);
         }
 
         Url url = urlRepository.findByShortUrl(shortUrl)
-                .orElseThrow(() -> new UrlNotFoundException("URL not found for: " + shortUrl));
+                .orElseThrow(() -> {
+                    log.error("Short url {} not found.", shortUrl);
+                    return new UrlNotFoundException("Short URL " + shortUrl + " not found in db.");
+                });
 
         if (isUrlExpired(url)) {
+            log.error("Url {} expired.", shortUrl);
             throw new UrlExpiredException("URL has expired for: " + shortUrl);
         }
 
@@ -111,7 +116,23 @@ public class UrlShorteningService {
             redisTemplate.opsForValue().set(shortUrl, url.getOriginalUrl(), Duration.ofSeconds(urlValidity.getSeconds()));
         }
 
+        incrementClickCount(shortUrl);
+
         return url;
+    }
+
+    /**
+     * Retrieves the click count for the given shortened URL.
+     *
+     * @param shortUrl the shortened URL
+     * @return the click count
+     * @throws UrlNotFoundException if the shortened URL is not found
+     */
+    public int getClickCount(String shortUrl) {
+        log.info("Retrieving click count for short url {}.", shortUrl);
+        return urlRepository.findByShortUrl(shortUrl)
+                .map(Url::getClickCount)
+                .orElseThrow(() -> new UrlNotFoundException("URL not found for: " + shortUrl));
     }
 
     /**
@@ -146,5 +167,15 @@ public class UrlShorteningService {
      */
     private boolean isUrlExpired(Url url) {
         return url.getExpirationDate().isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * Increments the click count by 1 of the shortened URL.
+     *
+     * @param shortUrl the shortened URL
+     */
+    private void incrementClickCount(String shortUrl) {
+        log.info("Incrementing click count by 1 for short url {}.", shortUrl);
+        redisTemplate.opsForValue().increment("clicks:" + shortUrl, 1);
     }
 }
