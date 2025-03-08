@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  */
 @Documented
 @Constraint(validatedBy = UrlValidator.class)
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidUrl {
     /**
