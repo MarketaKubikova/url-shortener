@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for handling URL shortening operations.
  */
 @RestController
+@RequestMapping("/api")
 @AllArgsConstructor
 @Slf4j
 public class UrlShorteningController {
@@ -29,7 +30,7 @@ public class UrlShorteningController {
      * @param requestDto the request DTO containing the original URL
      * @return the response DTO containing the shortened URL
      */
-    @PostMapping("/api/shorten")
+    @PostMapping("/shorten")
     public ResponseEntity<UrlShortenedResponseDto> shortenUrl(@Valid @RequestBody UrlShortenedRequestDto requestDto) {
         log.info("Received request to shorten url {}", requestDto.getOriginalUrl());
         UrlShortenedResponseDto responseDto = urlShorteningService.shortenUrl(requestDto);

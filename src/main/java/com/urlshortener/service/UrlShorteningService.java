@@ -7,6 +7,7 @@ import com.urlshortener.exception.UrlGenerationException;
 import com.urlshortener.exception.UrlNotFoundException;
 import com.urlshortener.model.Url;
 import com.urlshortener.repository.UrlRepository;
+import com.urlshortener.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,7 +41,7 @@ public class UrlShorteningService {
      * @return the response DTO containing the shortened URL
      */
     public UrlShortenedResponseDto shortenUrl(UrlShortenedRequestDto requestDto) {
-        String originalUrl = requestDto.getOriginalUrl();
+        String originalUrl = UrlUtil.normalizeUrl(requestDto.getOriginalUrl());
 
         // Check if the original URL is already shortened in cache
         String cachedShortUrl = redisTemplate.opsForValue().get(originalUrl);
