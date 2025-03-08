@@ -46,4 +46,10 @@ public class Url {
      * The date and time when the URL will expire.
      */
     private LocalDateTime expirationDate;
+
+    /**
+     * The number of times the shortened URL has been clicked.
+     */
+    @Column(nullable = false)
+    private int clickCount = 0;
 }

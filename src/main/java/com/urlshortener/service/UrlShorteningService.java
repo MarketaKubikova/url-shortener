@@ -91,13 +91,17 @@ public class UrlShorteningService {
         String cachedOriginalUrl = redisTemplate.opsForValue().get(shortUrl);
         if (cachedOriginalUrl != null) {
             log.info("Short url {} found in cache.", shortUrl);
-            return new Url(null, cachedOriginalUrl, shortUrl, null, null);
+            return new Url(null, cachedOriginalUrl, shortUrl, null, null, 0);
         }
 
         Url url = urlRepository.findByShortUrl(shortUrl)
-                .orElseThrow(() -> new UrlNotFoundException("URL not found for: " + shortUrl));
+                .orElseThrow(() -> {
+                    log.error("Short url {} not found.", shortUrl);
+                    return new UrlNotFoundException("Short URL " + shortUrl + " not found in db.");
+                });
 
         if (isUrlExpired(url)) {
+            log.error("Url {} expired.", shortUrl);
             throw new UrlExpiredException("URL has expired for: " + shortUrl);
         }
 

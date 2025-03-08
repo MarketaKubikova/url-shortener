@@ -4,8 +4,11 @@ import com.urlshortener.dto.UrlShortenedRequestDto;
 import com.urlshortener.dto.UrlShortenedResponseDto;
 import com.urlshortener.model.Url;
 import com.urlshortener.service.UrlShorteningService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class UrlShorteningController {
     private final UrlShorteningService urlShorteningService;
 
@@ -38,11 +42,15 @@ public class UrlShorteningController {
      * @return a response entity with a redirection to the original URL
      */
     @GetMapping("/{shortenUrl}")
-    public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortenUrl) {
+    public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortenUrl, HttpServletResponse response) {
+        log.info("Received request to redirect: {}", shortenUrl);
         Url originalUrl = urlShorteningService.getOriginalUrl(shortenUrl);
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .header("Location", originalUrl.getOriginalUrl())
-                .build();
+        log.info("Redirecting to: {}",originalUrl.getOriginalUrl());
+
+        response.setHeader(HttpHeaders.LOCATION, originalUrl.getOriginalUrl());
+        response.setStatus(HttpServletResponse.SC_FOUND); // 302 Redirect
+
+        return ResponseEntity.status(HttpStatus.FOUND).build();
     }
 }
