@@ -4,6 +4,7 @@ import com.urlshortener.model.Url;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -28,4 +29,11 @@ public interface UrlRepository extends JpaRepository<Url, Long> {
      * @return an Optional containing the found URL entity, or empty if not found
      */
     Optional<Url> findByShortUrl(String shortUrl);
+
+    /**
+     * Deletes URL entities with expiration dates before a given date and time.
+     *
+     * @param dateTime the date and time to compare against
+     */
+    void deleteByExpirationDateBefore(LocalDateTime dateTime);
 }
