@@ -28,7 +28,7 @@ import java.util.Optional;
 @Slf4j
 public class UrlShorteningService {
     private static final int EXPIRATION_MONTHS = 3;
-    private static final int SHORT_URL_LENGTH = 7;
+    private static final int SHORT_URL_LENGTH = 6;
     private static final Duration CACHE_EXPIRATION = Duration.ofHours(1);
 
     private final UrlRepository urlRepository;
